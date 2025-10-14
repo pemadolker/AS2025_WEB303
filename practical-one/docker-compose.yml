@@ -1,0 +1,16 @@
+services:
+  time-service:
+    build:
+      context: .
+      dockerfile: time-service/Dockerfile
+    hostname: time-service
+
+  greeter-service:
+    build:
+      context: .
+      dockerfile: greeter-service/Dockerfile
+    hostname: greeter-service
+    ports:
+      - "50051:50051"
+    depends_on:
+      - time-service

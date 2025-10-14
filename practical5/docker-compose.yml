@@ -1,0 +1,113 @@
+services:
+  # Databases
+  postgres:
+    image: postgres:13
+    container_name: monolith-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: student_cafe
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  menu-db:
+    image: postgres:13
+    container_name: menu-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: menu_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - menu_data:/var/lib/postgresql/data
+
+  user-db:
+    image: postgres:13
+    container_name: user-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:13
+    container_name: order-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: order_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+
+  # Monolith Application
+  monolith:
+    build: ./student-cafe-monolith
+    container_name: monolith
+    ports:
+      - "8090:8080"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: "host=postgres user=postgres password=postgres dbname=student_cafe port=5432 sslmode=disable"
+
+  # Microservices
+  menu-service:
+    build: ./menu-service
+    container_name: menu-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - menu-db
+    environment:
+      DATABASE_URL: "host=menu-db user=postgres password=postgres dbname=menu_db port=5432 sslmode=disable"
+      PORT: "8082"
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - user-db
+    environment:
+      DATABASE_URL: "host=user-db user=postgres password=postgres dbname=user_db port=5432 sslmode=disable"
+      PORT: "8081"
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - order-db
+      - user-service
+      - menu-service
+    environment:
+      DATABASE_URL: "host=order-db user=postgres password=postgres dbname=order_db port=5432 sslmode=disable"
+      PORT: "8083"
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - menu-service
+      - order-service
+
+volumes:
+  postgres_data:
+  menu_data:
+  user_data:
+  order_data:

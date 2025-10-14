@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "practical-one/proto/gen;gen";
+
+package time;
+
+service TimeService {
+  rpc GetTime(TimeRequest) returns (TimeResponse);
+}
+
+message TimeRequest {}
+
+message TimeResponse {
+  string current_time = 1;
+}
