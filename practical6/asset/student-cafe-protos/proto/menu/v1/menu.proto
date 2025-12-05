@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package menu.v1;
+
+option go_package = "github.com/douglasswm/student-cafe-protos/gen/go/menu/v1;menuv1";
+
+// Menu service definition
+service MenuService {
+  // Get a menu item by ID
+  rpc GetMenuItem(GetMenuItemRequest) returns (GetMenuItemResponse);
+
+  // Get all menu items
+  rpc GetMenu(GetMenuRequest) returns (GetMenuResponse);
+
+  // Create a new menu item
+  rpc CreateMenuItem(CreateMenuItemRequest) returns (CreateMenuItemResponse);
+}
+
+// MenuItem message definition
+message MenuItem {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// Get menu item request
+message GetMenuItemRequest {
+  uint32 id = 1;
+}
+
+// Get menu item response
+message GetMenuItemResponse {
+  MenuItem menu_item = 1;
+}
+
+// Get menu request (empty for now, can add filtering later)
+message GetMenuRequest {}
+
+// Get menu response
+message GetMenuResponse {
+  repeated MenuItem menu_items = 1;
+}
+
+// Create menu item request
+message CreateMenuItemRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+}
+
+// Create menu item response
+message CreateMenuItemResponse {
+  MenuItem menu_item = 1;
+}

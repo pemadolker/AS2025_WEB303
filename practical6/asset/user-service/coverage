@@ -1,0 +1,16 @@
+mode: set
+user-service/grpc/server.go:21.34,23.2 1 1
+user-service/grpc/server.go:26.121,33.56 2 1
+user-service/grpc/server.go:33.56,35.3 1 0
+user-service/grpc/server.go:37.2,39.8 1 1
+user-service/grpc/server.go:43.112,45.63 2 1
+user-service/grpc/server.go:45.63,46.36 1 1
+user-service/grpc/server.go:46.36,48.4 1 1
+user-service/grpc/server.go:49.3,49.75 1 0
+user-service/grpc/server.go:52.2,54.8 1 1
+user-service/grpc/server.go:58.115,60.55 2 1
+user-service/grpc/server.go:60.55,62.3 1 0
+user-service/grpc/server.go:64.2,65.29 2 1
+user-service/grpc/server.go:65.29,67.3 1 1
+user-service/grpc/server.go:69.2,71.8 1 1
+user-service/grpc/server.go:75.51,84.2 1 1

@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "github.com/douglasswm/student-cafe-protos/gen/go/order/v1;orderv1";
+
+// Order service definition
+service OrderService {
+  // Create a new order
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+
+  // Get all orders
+  rpc GetOrders(GetOrdersRequest) returns (GetOrdersResponse);
+
+  // Get an order by ID
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+}
+
+// OrderItem message definition
+message OrderItem {
+  uint32 id = 1;
+  uint32 order_id = 2;
+  uint32 menu_item_id = 3;
+  int32 quantity = 4;
+  double price = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// Order message definition
+message Order {
+  uint32 id = 1;
+  uint32 user_id = 2;
+  string status = 3;
+  repeated OrderItem order_items = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// Item in create order request
+message OrderItemRequest {
+  uint32 menu_item_id = 1;
+  int32 quantity = 2;
+}
+
+// Create order request
+message CreateOrderRequest {
+  uint32 user_id = 1;
+  repeated OrderItemRequest items = 2;
+}
+
+// Create order response
+message CreateOrderResponse {
+  Order order = 1;
+}
+
+// Get orders request (empty for now)
+message GetOrdersRequest {}
+
+// Get orders response
+message GetOrdersResponse {
+  repeated Order orders = 1;
+}
+
+// Get order request
+message GetOrderRequest {
+  uint32 id = 1;
+}
+
+// Get order response
+message GetOrderResponse {
+  Order order = 1;
+}

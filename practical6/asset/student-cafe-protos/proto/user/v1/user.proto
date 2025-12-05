@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "github.com/douglasswm/student-cafe-protos/gen/go/user/v1;userv1";
+
+// User service definition
+service UserService {
+  // Create a new user
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // Get a user by ID
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // Get all users
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+}
+
+// User message definition
+message User {
+  uint32 id = 1;
+  string name = 2;
+  string email = 3;
+  bool is_cafe_owner = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+// Create user request
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  bool is_cafe_owner = 3;
+}
+
+// Create user response
+message CreateUserResponse {
+  User user = 1;
+}
+
+// Get user request
+message GetUserRequest {
+  uint32 id = 1;
+}
+
+// Get user response
+message GetUserResponse {
+  User user = 1;
+}
+
+// Get users request (empty for now, can add pagination later)
+message GetUsersRequest {}
+
+// Get users response
+message GetUsersResponse {
+  repeated User users = 1;
+}

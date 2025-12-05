@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>grpc: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">order-service/grpc/clients.go (84.6%)</option>
+				
+				<option value="file1">order-service/grpc/server.go (94.3%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package grpc
+
+import (
+        "fmt"
+        "os"
+
+        menuv1 "github.com/douglasswm/student-cafe-protos/gen/go/menu/v1"
+        userv1 "github.com/douglasswm/student-cafe-protos/gen/go/user/v1"
+        "google.golang.org/grpc"
+        "google.golang.org/grpc/credentials/insecure"
+)
+
+// Clients holds gRPC client connections
+type Clients struct {
+        UserClient userv1.UserServiceClient
+        MenuClient menuv1.MenuServiceClient
+}
+
+// NewClients creates gRPC clients for user and menu services
+func NewClients() (*Clients, error) <span class="cov8" title="1">{
+        // Get service addresses from environment or use defaults
+        userServiceAddr := os.Getenv("USER_SERVICE_GRPC_ADDR")
+        if userServiceAddr == "" </span><span class="cov8" title="1">{
+                userServiceAddr = "user-service:9091"
+        }</span>
+
+        <span class="cov8" title="1">menuServiceAddr := os.Getenv("MENU_SERVICE_GRPC_ADDR")
+        if menuServiceAddr == "" </span><span class="cov8" title="1">{
+                menuServiceAddr = "menu-service:9092"
+        }</span>
+
+        // Connect to user service
+        <span class="cov8" title="1">userConn, err := grpc.NewClient(
+                userServiceAddr,
+                grpc.WithTransportCredentials(insecure.NewCredentials()),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect to user service at %s: %w", userServiceAddr, err)
+        }</span>
+
+        // Connect to menu service
+        <span class="cov8" title="1">menuConn, err := grpc.NewClient(
+                menuServiceAddr,
+                grpc.WithTransportCredentials(insecure.NewCredentials()),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect to menu service at %s: %w", menuServiceAddr, err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;Clients{
+                UserClient: userv1.NewUserServiceClient(userConn),
+                MenuClient: menuv1.NewMenuServiceClient(menuConn),
+        }, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package grpc
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        menuv1 "github.com/douglasswm/student-cafe-protos/gen/go/menu/v1"
+        orderv1 "github.com/douglasswm/student-cafe-protos/gen/go/order/v1"
+        userv1 "github.com/douglasswm/student-cafe-protos/gen/go/user/v1"
+        "google.golang.org/grpc"
+        "google.golang.org/grpc/codes"
+        "google.golang.org/grpc/credentials/insecure"
+        "google.golang.org/grpc/status"
+        "order-service/database"
+        "order-service/models"
+)
+
+// OrderServer implements the gRPC OrderService
+type OrderServer struct {
+        orderv1.UnimplementedOrderServiceServer
+        UserClient userv1.UserServiceClient
+        MenuClient menuv1.MenuServiceClient
+}
+
+// NewOrderServer creates a new gRPC order server
+func NewOrderServer(userServiceAddr, menuServiceAddr string) (*OrderServer, error) <span class="cov8" title="1">{
+        // Connect to user service
+        userConn, err := grpc.NewClient(
+                userServiceAddr,
+                grpc.WithTransportCredentials(insecure.NewCredentials()),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect to user service: %w", err)
+        }</span>
+
+        // Connect to menu service
+        <span class="cov8" title="1">menuConn, err := grpc.NewClient(
+                menuServiceAddr,
+                grpc.WithTransportCredentials(insecure.NewCredentials()),
+        )
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to connect to menu service: %w", err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;OrderServer{
+                UserClient: userv1.NewUserServiceClient(userConn),
+                MenuClient: menuv1.NewMenuServiceClient(menuConn),
+        }, nil</span>
+}
+
+// CreateOrder creates a new order
+func (s *OrderServer) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) (*orderv1.CreateOrderResponse, error) <span class="cov8" title="1">{
+        // Validate user exists via gRPC
+        _, err := s.UserClient.GetUser(ctx, &amp;userv1.GetUserRequest{Id: req.UserId})
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, status.Errorf(codes.InvalidArgument, "user not found: %v", err)
+        }</span>
+
+        // Create order
+        <span class="cov8" title="1">order := models.Order{
+                UserID: uint(req.UserId),
+                Status: "pending",
+        }
+
+        // Validate menu items and snapshot prices via gRPC
+        for _, item := range req.Items </span><span class="cov8" title="1">{
+                menuItemResp, err := s.MenuClient.GetMenuItem(ctx, &amp;menuv1.GetMenuItemRequest{Id: item.MenuItemId})
+                if err != nil </span><span class="cov8" title="1">{
+                        return nil, status.Errorf(codes.InvalidArgument, "menu item %d not found: %v", item.MenuItemId, err)
+                }</span>
+
+                <span class="cov8" title="1">orderItem := models.OrderItem{
+                        MenuItemID: uint(item.MenuItemId),
+                        Quantity:   int(item.Quantity),
+                        Price:      menuItemResp.MenuItem.Price,
+                }
+                order.OrderItems = append(order.OrderItems, orderItem)</span>
+        }
+
+        // Save order to database
+        <span class="cov8" title="1">if err := database.DB.Create(&amp;order).Error; err != nil </span><span class="cov8" title="1">{
+                return nil, status.Errorf(codes.Internal, "failed to create order: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;orderv1.CreateOrderResponse{
+                Order: modelToProto(&amp;order),
+        }, nil</span>
+}
+
+// GetOrders retrieves all orders
+func (s *OrderServer) GetOrders(ctx context.Context, req *orderv1.GetOrdersRequest) (*orderv1.GetOrdersResponse, error) <span class="cov8" title="1">{
+        var orders []models.Order
+        if err := database.DB.Preload("OrderItems").Find(&amp;orders).Error; err != nil </span><span class="cov8" title="1">{
+                return nil, status.Errorf(codes.Internal, "failed to get orders: %v", err)
+        }</span>
+
+        <span class="cov8" title="1">protoOrders := make([]*orderv1.Order, len(orders))
+        for i, order := range orders </span><span class="cov8" title="1">{
+                protoOrders[i] = modelToProto(&amp;order)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;orderv1.GetOrdersResponse{
+                Orders: protoOrders,
+        }, nil</span>
+}
+
+// GetOrder retrieves an order by ID
+func (s *OrderServer) GetOrder(ctx context.Context, req *orderv1.GetOrderRequest) (*orderv1.GetOrderResponse, error) <span class="cov8" title="1">{
+        var order models.Order
+        if err := database.DB.Preload("OrderItems").First(&amp;order, req.Id).Error; err != nil </span><span class="cov8" title="1">{
+                return nil, status.Errorf(codes.NotFound, "order not found")
+        }</span>
+
+        <span class="cov8" title="1">return &amp;orderv1.GetOrderResponse{
+                Order: modelToProto(&amp;order),
+        }, nil</span>
+}
+
+// modelToProto converts a GORM Order model to proto Order message
+func modelToProto(order *models.Order) *orderv1.Order <span class="cov8" title="1">{
+        protoItems := make([]*orderv1.OrderItem, len(order.OrderItems))
+        for i, item := range order.OrderItems </span><span class="cov8" title="1">{
+                protoItems[i] = &amp;orderv1.OrderItem{
+                        Id:         uint32(item.ID),
+                        OrderId:    uint32(item.OrderID),
+                        MenuItemId: uint32(item.MenuItemID),
+                        Quantity:   int32(item.Quantity),
+                        Price:      item.Price,
+                        CreatedAt:  item.CreatedAt.Format(time.RFC3339),
+                        UpdatedAt:  item.UpdatedAt.Format(time.RFC3339),
+                }
+        }</span>
+
+        <span class="cov8" title="1">return &amp;orderv1.Order{
+                Id:         uint32(order.ID),
+                UserId:     uint32(order.UserID),
+                Status:     order.Status,
+                OrderItems: protoItems,
+                CreatedAt:  order.CreatedAt.Format(time.RFC3339),
+                UpdatedAt:  order.UpdatedAt.Format(time.RFC3339),
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

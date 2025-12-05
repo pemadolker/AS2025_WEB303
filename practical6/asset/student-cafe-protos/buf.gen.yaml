@@ -1,0 +1,14 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/douglasswm/student-cafe-protos/gen/go
+plugins:
+  - plugin: buf.build/protocolbuffers/go:v1.31.0
+    out: gen/go
+    opt:
+      - paths=source_relative
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: gen/go
+    opt:
+      - paths=source_relative

@@ -1,0 +1,121 @@
+services:
+  # Databases
+  user-db:
+    image: postgres:13
+    container_name: user-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    networks:
+      - cafe-network
+
+  menu-db:
+    image: postgres:13
+    container_name: menu-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: menu_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - menu_data:/var/lib/postgresql/data
+    networks:
+      - cafe-network
+
+  order-db:
+    image: postgres:13
+    container_name: order-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: order_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    networks:
+      - cafe-network
+
+  # Microservices (gRPC only)
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    ports:
+      - "9091:9091"  # gRPC only
+    depends_on:
+      - user-db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@user-db:5432/user_db?sslmode=disable
+      GRPC_PORT: "9091"
+    networks:
+      - cafe-network
+
+  menu-service:
+    build:
+      context: .
+      dockerfile: menu-service/Dockerfile
+    container_name: menu-service
+    ports:
+      - "9092:9092"  # gRPC only
+    depends_on:
+      - menu-db
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@menu-db:5432/menu_db?sslmode=disable
+      GRPC_PORT: "9092"
+    networks:
+      - cafe-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-service
+    ports:
+      - "9093:9093"  # gRPC only
+    depends_on:
+      - order-db
+      - user-service
+      - menu-service
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@order-db:5432/order_db?sslmode=disable
+      GRPC_PORT: "9093"
+      USER_SERVICE_GRPC_ADDR: "user-service:9091"
+      MENU_SERVICE_GRPC_ADDR: "menu-service:9092"
+    networks:
+      - cafe-network
+
+  # API Gateway (HTTP→gRPC translation layer)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8081:8080"  # HTTP for external clients (changed to 8081 to avoid conflicts)
+    depends_on:
+      - user-service
+      - menu-service
+      - order-service
+    environment:
+      USER_SERVICE_GRPC_ADDR: "user-service:9091"
+      MENU_SERVICE_GRPC_ADDR: "menu-service:9092"
+      ORDER_SERVICE_GRPC_ADDR: "order-service:9093"
+    networks:
+      - cafe-network
+
+volumes:
+  user_data:
+  menu_data:
+  order_data:
+
+networks:
+  cafe-network:
+    driver: bridge

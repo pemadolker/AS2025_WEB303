@@ -1,0 +1,16 @@
+mode: set
+menu-service/grpc/server.go:21.34,23.2 1 1
+menu-service/grpc/server.go:26.124,28.67 2 1
+menu-service/grpc/server.go:28.67,29.36 1 1
+menu-service/grpc/server.go:29.36,31.4 1 1
+menu-service/grpc/server.go:32.3,32.80 1 1
+menu-service/grpc/server.go:35.2,37.8 1 1
+menu-service/grpc/server.go:41.112,43.59 2 1
+menu-service/grpc/server.go:43.59,45.3 1 1
+menu-service/grpc/server.go:47.2,48.33 2 1
+menu-service/grpc/server.go:48.33,50.3 1 1
+menu-service/grpc/server.go:52.2,54.8 1 1
+menu-service/grpc/server.go:58.133,65.60 2 1
+menu-service/grpc/server.go:65.60,67.3 1 1
+menu-service/grpc/server.go:69.2,71.8 1 1
+menu-service/grpc/server.go:75.59,84.2 1 1
